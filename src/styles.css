@@ -1,0 +1,15 @@
+body{
+    background-color:#171915;
+    color: wheat;
+}
+
+#canvasWrapper{
+    position: absolute;
+    bottom: 10px;
+    padding: 10px 10px 10px 10px ;
+
+}
+
+#mainCanvas{
+    border: 1px solid #89f73b;
+}
