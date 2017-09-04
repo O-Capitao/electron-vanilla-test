@@ -2,51 +2,55 @@ document.addEventListener('DOMContentLoaded', function(){
 
 var simulation = {
 
-    time : 0.0 ,
-    simulationInited: false,
-    simulationEnded: false ,
+    currentTime: 0,
+    deltaT: 0.0,
+    total_time: 100.0, // will run for 10 secs
     actors : [],
+    accel: 9.8, //meter per second -> 
+    scaleFactor: 100, //how many pixels is one metre?
     
     startSimulation: function(){
 
-        //window.alert("RUN THIS SHIT");
         simulation.init();
-
-
-
-        while (!simulation.simulationEnded){
-
-            simulation.update();
-        }
+        requestAnimationFrame( simulation.render ) ; // START RECURSIVE RENDER / UPDATE
 
     },
     init: function(){
 
         simulation.actors.forEach(
             function(actor){
-
-                actor.acc = 9.8 ;
                 actor.v = 0 ;
+            }
+        );
+    },
+    update: function(timestamp){
+
+        simulation.deltaT = ( timestamp - simulation.currentTime ) / 1000 ;
+        simulation.currentTime += simulation.deltaT ;
+
+        //console.log("Current Time is : " + simulation.currentTime );
+        //console.log("Delta T is : " + simulation.deltaT );
+
+        simulation.actors.forEach(
+            function(actor){
+
+                actor.v += simulation.accel * simulation.deltaT ;
+                actor.center[1] += actor.v / simulation.scaleFactor ;
+
+                //console.log( "Acc: " + actor.acc + " Vel: " + actor.v + " Y: " + actor.center[1] );
 
             }
         );
 
-        simulation.simulationInited = true ;
 
     },
-    update: function(){
-
-        console.log("Simulation Step nr 1 ");
-        console.log(simulation.actors);
-        //simulation.simulationEnded = true ;
-    },
-    render: function(){
+    render: function( timestamp ){
 
         clearCanvas();
 
-        simulation.actors.filter(
-            actor => actor.visible 
-        ).forEach(
+        simulation.update(timestamp);
+
+        simulation.actors.forEach(
             function(actor){
 
                 if (actor.shape === "circle"){
@@ -59,10 +63,44 @@ var simulation = {
                 }
             }
         );
+
+        if (simulation.currentTime < simulation.total_time){
+            requestAnimationFrame(simulation.render);
+        }    
+        
+    },
+    /**
+     * first static preview of the Canvas contents
+     */
+    preemptiveRender: function(){
+  
+        clearCanvas();
+
+        simulation.actors.forEach(
+            function(actor){
+
+                if (actor.shape === "circle"){
+
+                    drawingContext.beginPath();
+                    drawingContext.arc( actor.center[0] , actor.center[1], 10, 0, 2*Math.PI );
+                    drawingContext.strokeStyle = actor.color ;
+                    drawingContext.stroke();
+
+                }
+            }
+        );
+
+
     },
     reset: function(){
+
         clearCanvas();
         simulation.actors = [] ;
+        simulation.currentTime = 0 ;
+
+        simulation.deltaT = 0 ;
+
+        simulation.preemptiveRender();
     }
 }
 
@@ -94,16 +132,13 @@ var simulation = {
                 "filled": false,
                 "visible": true,
                 "shape": "circle"
+                //SHOULD ALSO GET MASS AND STUFF
             }
         );
 
-        simulation.render();
-
+        simulation.preemptiveRender();
 
     }
-
-
-
 
     function getMousePosition(event){
 
@@ -123,8 +158,6 @@ var colors = {
     background: "#2f2e30",
     foreground: "#89f73b"
 }
-
-
 
 
 });
