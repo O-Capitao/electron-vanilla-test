@@ -1,108 +1,132 @@
 document.addEventListener('DOMContentLoaded', function(){
 
-var simulation = {
+    var simulation = {
 
-    currentTime: 0,
-    deltaT: 0.0,
-    total_time: 100.0, // will run for 10 secs
-    actors : [],
-    accel: 9.8, //meter per second -> 
-    scaleFactor: 100, //how many pixels is one metre?
-    
-    startSimulation: function(){
-
-        simulation.init();
-        requestAnimationFrame( simulation.render ) ; // START RECURSIVE RENDER / UPDATE
-
-    },
-    init: function(){
-
-        simulation.actors.forEach(
-            function(actor){
-                actor.v = 0 ;
-            }
-        );
-    },
-    update: function(timestamp){
-
-        simulation.deltaT = ( timestamp - simulation.currentTime ) / 1000 ;
-        simulation.currentTime += simulation.deltaT ;
-
-        //console.log("Current Time is : " + simulation.currentTime );
-        //console.log("Delta T is : " + simulation.deltaT );
-
-        simulation.actors.forEach(
-            function(actor){
-
-                actor.v += simulation.accel * simulation.deltaT ;
-                actor.center[1] += actor.v / simulation.scaleFactor ;
-
-                //console.log( "Acc: " + actor.acc + " Vel: " + actor.v + " Y: " + actor.center[1] );
-
-            }
-        );
+        currentTime: 0,
+        deltaT: 0.0,
+        total_time: 100.0, // will run for 10 secs
+        actors : [],
+        accel: 9.8, //meter per second -> 
+        scaleFactor: 100, //how many pixels is one metre?
+        ground: {
+            points: [],
+            precision: null,
+            initGround: function(resolution, maxIncline, startingY){
 
 
-    },
-    render: function( timestamp ){
+                points[].push(startingY);
+                //randomly generates ground
+                for (let n = 0 ; n < resolution ; n++ ){
 
-        clearCanvas();
 
-        simulation.update(timestamp);
-
-        simulation.actors.forEach(
-            function(actor){
-
-                if (actor.shape === "circle"){
-
-                    drawingContext.beginPath();
-                    drawingContext.arc( actor.center[0] , actor.center[1], 10, 0, 2*Math.PI );
-                    drawingContext.strokeStyle = actor.color ;
-                    drawingContext.stroke();
 
                 }
-            }
-        );
 
-        if (simulation.currentTime < simulation.total_time){
-            requestAnimationFrame(simulation.render);
-        }    
+
+
+
+            }
+        },
         
-    },
-    /**
-     * first static preview of the Canvas contents
-     */
-    preemptiveRender: function(){
-  
-        clearCanvas();
+        startSimulation: function(){
 
-        simulation.actors.forEach(
-            function(actor){
+            simulation.init();
+            requestAnimationFrame( simulation.render ) ; // START RECURSIVE RENDER / UPDATE
 
-                if (actor.shape === "circle"){
+        },
+        init: function(){
 
-                    drawingContext.beginPath();
-                    drawingContext.arc( actor.center[0] , actor.center[1], 10, 0, 2*Math.PI );
-                    drawingContext.strokeStyle = actor.color ;
-                    drawingContext.stroke();
+            simulation.actors.forEach(
+                function(actor){
+                    actor.v = 0 ;
+                }
+            );
+        },
+        update: function(timestamp){
+
+            simulation.deltaT = ( timestamp - simulation.currentTime ) / 1000 ;
+            simulation.currentTime += simulation.deltaT ;
+
+            //console.log("Current Time is : " + simulation.currentTime );
+            //console.log("Delta T is : " + simulation.deltaT );
+
+            simulation.actors.forEach(
+                function(actor){
+
+                    actor.v += simulation.accel * simulation.deltaT ;
+                    actor.center[1] += actor.v / simulation.scaleFactor ;
+
+                    //console.log( "Acc: " + actor.acc + " Vel: " + actor.v + " Y: " + actor.center[1] );
 
                 }
-            }
-        );
+            );
 
 
-    },
-    reset: function(){
+        },
+        render: function( timestamp ){
 
-        clearCanvas();
-        simulation.actors = [] ;
-        simulation.currentTime = 0 ;
+            clearCanvas();
 
-        simulation.deltaT = 0 ;
+            simulation.update(timestamp);
 
-        simulation.preemptiveRender();
+            simulation.actors.forEach(
+                function(actor){
+
+                    if (actor.shape === "circle"){
+
+                        drawingContext.beginPath();
+                        drawingContext.arc( actor.center[0] , actor.center[1], 10, 0, 2*Math.PI );
+                        drawingContext.strokeStyle = actor.color ;
+                        drawingContext.stroke();
+
+                    }
+                }
+            );
+
+            if (simulation.currentTime < simulation.total_time){
+                requestAnimationFrame(simulation.render);
+            }    
+            
+        },
+        /**
+         * first static preview of the Canvas contents
+         */
+        preemptiveRender: function(){
+    
+            clearCanvas();
+
+            simulation.actors.forEach(
+                function(actor){
+
+                    if (actor.shape === "circle"){
+
+                        drawingContext.beginPath();
+                        drawingContext.arc( actor.center[0] , actor.center[1], 10, 0, 2*Math.PI );
+                        drawingContext.strokeStyle = actor.color ;
+                        drawingContext.stroke();
+
+                    }
+                }
+            );
+
+
+        },
+        reset: function(){
+
+
+            clearCanvas();
+            simulation.actors = [] ;
+            simulation.currentTime = 0 ;
+            simulation.deltaT = 0 ;
+
+            cancelAnimationFrame();
+
+            //simulation.preemptiveRender();
+            
+            console.log("This Simulation has been reset - - > Values are : " + JSON.stringify(simulation, null, 2));
+
+        }
     }
-}
 
 
     /********* OTHER STUFF     
